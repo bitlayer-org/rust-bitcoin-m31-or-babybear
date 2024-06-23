@@ -1,4 +1,5 @@
-use crate::{u31_add_v31, u31_mul_by_constant, u31_to_bits, u31_to_v31, unroll, v31_add, v31_double};
+use crate::{u31_add_v31, u31_mul_by_constant, u31_neg, u31_to_bits, u31_to_v31, unroll, v31_add, v31_double};
+use bitcoin::opcodes::{OP_FROMALTSTACK, OP_SWAP, OP_TOALTSTACK};
 use bitvm::treepp::*;
 
 mod babybear;
@@ -77,7 +78,7 @@ pub fn u31ext_add<C: U31ExtConfig>() -> Script {
  */
 pub fn u31ext_sub_u31<C: U31ExtConfig>() -> Script {
     script! {
-        OP_SWAP
+        // OP_SWAP
         {u31_sub::<C::BaseFieldConfig>()}
     }
 }
@@ -93,14 +94,43 @@ pub fn u31ext_sub_u31<C: U31ExtConfig>() -> Script {
  *
  *  output:
  *  stack:
- *      a -  b_ext[0]
- *      b_ext[1]
- *      b_ext[2]
- *      b_ext[3]
+ *      a - b_ext[0] 
+ *      -b_ext[1]
+ *      -b_ext[2]
+ *      -b_ext[3]
  */
 pub fn u31_sub_u31ext<C: U31ExtConfig>() -> Script {
     script! {
+        OP_SWAP
         {u31_sub::<C::BaseFieldConfig>()}
+        OP_TOALTSTACK
+        {u31_neg::<C::BaseFieldConfig>()}
+        OP_TOALTSTACK
+        {u31_neg::<C::BaseFieldConfig>()}
+        OP_TOALTSTACK
+        {u31_neg::<C::BaseFieldConfig>()}
+        OP_FROMALTSTACK
+        OP_FROMALTSTACK
+        OP_FROMALTSTACK
+    }
+}
+
+/**
+ * input:
+ *  stack:
+ *      b   u31
+ *
+ *  output:
+ *  stack:
+ *      b   <-- top 
+ *      0
+ *      0
+ *      0
+ */
+pub fn u31_to_u31ext<C: U31ExtConfig>() -> Script {
+    script! {
+        OP_0 OP_0 OP_0 
+        3 OP_ROLL
     }
 }
 
