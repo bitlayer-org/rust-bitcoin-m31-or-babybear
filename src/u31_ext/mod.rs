@@ -36,6 +36,74 @@ pub fn u31ext_add<C: U31ExtConfig>() -> Script {
     }
 }
 
+/**
+ * input:
+ *  stack:
+ *      a   u31
+ *      b_ext[0]
+ *      b_ext[1]
+ *      b_ext[2]
+ *      b_ext[3]
+ *
+ *  output:
+ *  stack:
+ *      a + b_ext[0]
+ *      b_ext[1]
+ *      b_ext[2]
+ *      b_ext[3]
+ */
+
+ pub fn u31ext_add_u31<C: U31ExtConfig>() -> Script {
+    script! {
+        {u31_add::<C::BaseFieldConfig>()}
+    }
+}
+
+/**
+ * input:
+ *  stack:
+ *      a   u31
+ *      b_ext[0]
+ *      b_ext[1]
+ *      b_ext[2]
+ *      b_ext[3]
+ *
+ *  output:
+ *  stack:
+ *      b_ext[0] - a
+ *      b_ext[1]
+ *      b_ext[2]
+ *      b_ext[3]
+ */
+pub fn u31ext_sub_u31<C: U31ExtConfig>() -> Script {
+    script! {
+        OP_SWAP
+        {u31_sub::<C::BaseFieldConfig>()}
+    }
+}
+
+/**
+ * input:
+ *  stack:
+ *      a   u31
+ *      b_ext[0]
+ *      b_ext[1]
+ *      b_ext[2]
+ *      b_ext[3]
+ *
+ *  output:
+ *  stack:
+ *      a -  b_ext[0]
+ *      b_ext[1]
+ *      b_ext[2]
+ *      b_ext[3]
+ */
+pub fn u31_sub_u31ext<C: U31ExtConfig>() -> Script {
+    script! {
+        {u31_sub::<C::BaseFieldConfig>()}
+    }
+}
+
 pub fn u31ext_equalverify<C: U31ExtConfig>() -> Script {
     script! {
         { unroll(C::DEGREE - 1, |i| {
