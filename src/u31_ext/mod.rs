@@ -1,4 +1,6 @@
-use crate::{u31_add_v31, u31_mul_by_constant, u31_neg, u31_to_bits, u31_to_v31, unroll, v31_add, v31_double};
+use crate::{
+    u31_add_v31, u31_mul_by_constant, u31_neg, u31_to_bits, u31_to_v31, unroll, v31_add, v31_double,
+};
 use bitcoin::opcodes::{OP_FROMALTSTACK, OP_SWAP, OP_TOALTSTACK};
 use bitvm::treepp::*;
 
@@ -54,7 +56,7 @@ pub fn u31ext_add<C: U31ExtConfig>() -> Script {
  *      b_ext[3]
  */
 
- pub fn u31ext_add_u31<C: U31ExtConfig>() -> Script {
+pub fn u31ext_add_u31<C: U31ExtConfig>() -> Script {
     script! {
         {u31_add::<C::BaseFieldConfig>()}
     }
@@ -94,7 +96,7 @@ pub fn u31ext_sub_u31<C: U31ExtConfig>() -> Script {
  *
  *  output:
  *  stack:
- *      a - b_ext[0] 
+ *      a - b_ext[0]
  *      -b_ext[1]
  *      -b_ext[2]
  *      -b_ext[3]
@@ -115,6 +117,22 @@ pub fn u31_sub_u31ext<C: U31ExtConfig>() -> Script {
     }
 }
 
+pub fn u31ext_neg<C: U31ExtConfig>() -> Script {
+    script! {
+        { unroll(C::DEGREE, |_| {
+            script!{
+                { u31_neg::<C::BaseFieldConfig>() }
+                OP_TOALTSTACK
+            }
+        })}
+        { unroll(C::DEGREE, |_| {
+            script!{
+                OP_FROMALTSTACK
+            }
+        })}
+    }
+}
+
 /**
  * input:
  *  stack:
@@ -122,14 +140,14 @@ pub fn u31_sub_u31ext<C: U31ExtConfig>() -> Script {
  *
  *  output:
  *  stack:
- *      b   <-- top 
+ *      b   <-- top
  *      0
  *      0
  *      0
  */
 pub fn u31_to_u31ext<C: U31ExtConfig>() -> Script {
     script! {
-        OP_0 OP_0 OP_0 
+        OP_0 OP_0 OP_0
         3 OP_ROLL
     }
 }
@@ -146,6 +164,24 @@ pub fn u31ext_equalverify<C: U31ExtConfig>() -> Script {
     }
 }
 
+/**
+ * input
+ *  stack:
+ *    a[0]
+ *    a[1]
+ *    a[2]
+ *    a[3]
+ *    b[0]
+ *    b[1]
+ *    b[2]
+ *    b[3]
+ * output:
+ *  stack:
+ *    b[0] - a[0]
+ *    b[1] - a[1]
+ *    b[2] - a[2]
+ *    b[3] - a[3]
+ */
 pub fn u31ext_sub<C: U31ExtConfig>() -> Script {
     script! {
         { unroll(C::DEGREE - 1, |i| {
@@ -272,7 +308,6 @@ pub fn u31ext_mul_u31<C: U31ExtConfig>() -> Script {
         OP_FROMALTSTACK OP_FROMALTSTACK OP_FROMALTSTACK OP_FROMALTSTACK
     }
 }
-
 
 pub fn u31ext_mul_u31_by_constant<C: U31ExtConfig>(constant: u32) -> Script {
     // input stack:

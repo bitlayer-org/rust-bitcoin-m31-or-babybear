@@ -49,10 +49,14 @@ impl U31ExtConfig for BabyBear4 {
 
 #[cfg(test)]
 mod test {
-    use crate::{u31_sub_u31ext, u31_to_u31ext, u31ext_add, u31ext_add_u31, u31ext_double, u31ext_equalverify, u31ext_mul, u31ext_mul_u31, u31ext_mul_u31_by_constant, u31ext_sub, u31ext_sub_u31, QM31};
+    use crate::{
+        u31_sub_u31ext, u31_to_u31ext, u31ext_add, u31ext_add_u31, u31ext_double,
+        u31ext_equalverify, u31ext_mul, u31ext_mul_u31, u31ext_mul_u31_by_constant, u31ext_neg,
+        u31ext_sub, u31ext_sub_u31, QM31,
+    };
     use bitvm::treepp::*;
     use core::ops::{Add, Mul, Neg};
-    use p3_field::{AbstractExtensionField, AbstractField, PrimeField32,ExtensionField};
+    use p3_field::{AbstractExtensionField, AbstractField, ExtensionField, PrimeField32};
     use rand::{Rng, SeedableRng};
     use rand_chacha::ChaCha20Rng;
 
@@ -157,26 +161,24 @@ mod test {
         assert!(exec_result.success);
     }
 
-
     #[test]
     fn test_u31ext_add_u31() {
-        for _ in 0..20{
-
+        for _ in 0..20 {
             let add_script = u31ext_add_u31::<BabyBear4>();
-    
+
             let mut rng = ChaCha20Rng::seed_from_u64(0u64);
             eprintln!("babybear4 mul_by_babybear: {}", add_script.len());
-    
+
             let a = rng.gen::<F>();
             let b = rng.gen::<p3_baby_bear::BabyBear>();
-    
+
             let c1 = a + F::from_base(b);
             let c = a + b;
-            assert_eq!(c,c1);
-    
+            assert_eq!(c, c1);
+
             let a: &[p3_baby_bear::BabyBear] = a.as_base_slice();
             let c: &[p3_baby_bear::BabyBear] = c.as_base_slice();
-    
+
             let script = script! {
                 { a[3].as_canonical_u32() } { a[2].as_canonical_u32() } { a[1].as_canonical_u32() } { a[0].as_canonical_u32() }
                 { b.as_canonical_u32() }
@@ -185,7 +187,7 @@ mod test {
                 { u31ext_equalverify::<BabyBear4>() }
                 OP_TRUE
             };
-    
+
             let exec_result = execute_script(script);
             assert!(exec_result.success);
         }
@@ -193,23 +195,22 @@ mod test {
 
     #[test]
     fn test_u31ext_sub_u31() {
-        for _ in 0..20{
-
+        for _ in 0..20 {
             let sub_script = u31ext_sub_u31::<BabyBear4>();
-    
+
             let mut rng = ChaCha20Rng::seed_from_u64(0u64);
             eprintln!("babybear4 mul_by_babybear: {}", sub_script.len());
-    
+
             let a = rng.gen::<F>();
             let b = rng.gen::<p3_baby_bear::BabyBear>();
-    
+
             let c1 = a - F::from_base(b);
             let c = a - b;
-            assert_eq!(c,c1);
-    
+            assert_eq!(c, c1);
+
             let a: &[p3_baby_bear::BabyBear] = a.as_base_slice();
             let c: &[p3_baby_bear::BabyBear] = c.as_base_slice();
-    
+
             let script = script! {
                 { a[3].as_canonical_u32() } { a[2].as_canonical_u32() } { a[1].as_canonical_u32() } { a[0].as_canonical_u32() }
                 { b.as_canonical_u32() }
@@ -218,30 +219,55 @@ mod test {
                 { u31ext_equalverify::<BabyBear4>() }
                 OP_TRUE
             };
-    
+
             let exec_result = execute_script(script);
             assert!(exec_result.success);
         }
+    }
 
+    #[test]
+    fn test_u31ext_neg() {
+        for _ in 0..20 {
+            let neg_script = u31ext_neg::<BabyBear4>();
+
+            let mut rng = ChaCha20Rng::seed_from_u64(0u64);
+            eprintln!("babybear4  neg: {}", neg_script.len());
+
+            let a = rng.gen::<F>();
+            let c = -a;
+
+            let a: &[p3_baby_bear::BabyBear] = a.as_base_slice();
+            let c: &[p3_baby_bear::BabyBear] = c.as_base_slice();
+
+            let script = script! {
+                { a[3].as_canonical_u32() } { a[2].as_canonical_u32() } { a[1].as_canonical_u32() } { a[0].as_canonical_u32() }
+                { neg_script.clone() }
+                { c[3].as_canonical_u32() } { c[2].as_canonical_u32() } { c[1].as_canonical_u32() } { c[0].as_canonical_u32() }
+                { u31ext_equalverify::<BabyBear4>() }
+                OP_TRUE
+            };
+
+            let exec_result = execute_script(script);
+            assert!(exec_result.success);
+        }
     }
 
     #[test]
     fn test_u31_sub_u31ext() {
-        for _ in 0..20{
-
+        for _ in 0..20 {
             let sub_script = u31_sub_u31ext::<BabyBear4>();
-    
+
             let mut rng = ChaCha20Rng::seed_from_u64(0u64);
             eprintln!("babybear4 mul_by_babybear: {}", sub_script.len());
-    
+
             let a = rng.gen::<F>();
             let b = rng.gen::<p3_baby_bear::BabyBear>();
-    
+
             let c = F::from_base(b) - a;
-    
+
             let a: &[p3_baby_bear::BabyBear] = a.as_base_slice();
             let c: &[p3_baby_bear::BabyBear] = c.as_base_slice();
-    
+
             let script = script! {
                 { a[3].as_canonical_u32() } { a[2].as_canonical_u32() } { a[1].as_canonical_u32() } { a[0].as_canonical_u32() }
                 { b.as_canonical_u32() }
@@ -250,24 +276,23 @@ mod test {
                 { u31ext_equalverify::<BabyBear4>() }
                 OP_TRUE
             };
-    
+
             let exec_result = execute_script(script);
             assert!(exec_result.success);
         }
     }
 
-
     #[test]
     fn test_u31_to_u31ext() {
-        for _ in 0..20{
+        for _ in 0..20 {
             let mut rng = ChaCha20Rng::seed_from_u64(0u64);
-    
+
             let b = rng.gen::<p3_baby_bear::BabyBear>();
-    
+
             let c = F::from_base(b);
-    
+
             let c: &[p3_baby_bear::BabyBear] = c.as_base_slice();
-    
+
             let script = script! {
                 { b.as_canonical_u32() }
                 { u31_to_u31ext::<BabyBear4>()}
@@ -275,14 +300,12 @@ mod test {
                 { u31ext_equalverify::<BabyBear4>() }
                 OP_TRUE
             };
-    
+
             let exec_result = execute_script(script);
             assert!(exec_result.success);
         }
     }
 
-
-    
     #[test]
     fn test_u31ext_mul_u31() {
         let mul_script = u31ext_mul_u31::<BabyBear4>();
