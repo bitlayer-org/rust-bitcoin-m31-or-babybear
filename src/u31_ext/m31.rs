@@ -1,6 +1,8 @@
 use crate::{karatsuba_complex_big, u31_add, u31_double, u31_sub, U31ExtConfig, M31};
-use bitvm::treepp::*;
-
+// use bitvm::treepp::*;
+use bitcoin_script::{script,define_pushable};
+define_pushable!();
+use bitcoin::ScriptBuf as Script;
 pub struct QM31;
 
 impl U31ExtConfig for QM31 {
@@ -33,14 +35,19 @@ impl U31ExtConfig for QM31 {
 
 #[cfg(test)]
 mod test {
-    use crate::{u31ext_add, u31ext_double, u31ext_equalverify, u31ext_mul, u31ext_mul_u31, u31ext_mul_u31_by_constant, u31ext_sub};
-    use bitvm::treepp::*;
+    use crate::{
+        u31ext_add, u31ext_double, u31ext_equalverify, u31ext_mul, u31ext_mul_u31,
+        u31ext_mul_u31_by_constant, u31ext_sub,
+    };
+    use bitcoin_script::{script,define_pushable};
+    define_pushable!();
+    use bitcoin::ScriptBuf as Script;
     use core::ops::{Add, Mul, Neg};
     use p3_field::extension::Complex;
     use p3_field::{AbstractExtensionField, AbstractField, PrimeField32};
     use rand::{Rng, SeedableRng};
     use rand_chacha::ChaCha20Rng;
-
+    use crate::execute_script;
     use super::*;
 
     type F = p3_field::extension::BinomialExtensionField<Complex<p3_mersenne_31::Mersenne31>, 2>;

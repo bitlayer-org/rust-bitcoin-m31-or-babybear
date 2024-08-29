@@ -1,8 +1,10 @@
 use crate::karatsuba_big;
 use crate::u31::{u31_add, u31_double, BabyBear};
 use crate::U31ExtConfig;
-use bitvm::treepp::*;
-
+// use bitvm::treepp::*;
+use bitcoin_script::{script,define_pushable};
+define_pushable!();
+use bitcoin::ScriptBuf as Script;
 pub struct BabyBear4;
 
 impl BabyBear4 {
@@ -54,11 +56,14 @@ mod test {
         u31ext_equalverify, u31ext_mul, u31ext_mul_u31, u31ext_mul_u31_by_constant, u31ext_neg,
         u31ext_sub, u31ext_sub_u31, QM31,
     };
-    use bitvm::treepp::*;
+    use bitcoin_script::{script,define_pushable};
+    define_pushable!();
+    use bitcoin::ScriptBuf as Script;
     use core::ops::{Add, Mul, Neg};
     use p3_field::{AbstractExtensionField, AbstractField, ExtensionField, PrimeField32};
     use rand::{Rng, SeedableRng};
     use rand_chacha::ChaCha20Rng;
+    use crate::execute_script;
 
     use super::*;
 

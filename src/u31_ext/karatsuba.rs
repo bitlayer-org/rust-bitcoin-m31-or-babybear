@@ -1,6 +1,8 @@
 use crate::{u31_add, u31_mul, u31_sub, U31Config};
-use bitvm::treepp::*;
-
+// use bitvm::treepp::*;
+use bitcoin_script::{script,define_pushable};
+define_pushable!();
+use bitcoin::ScriptBuf as Script;
 // Input: A1 B1 A2 B2
 // Output:
 //      A1A2
@@ -99,12 +101,16 @@ pub fn karatsuba_big<M: U31Config>() -> Script {
 mod test {
     use crate::karatsuba_big;
     use crate::{karatsuba_small, BabyBear};
-    use bitvm::treepp::*;
+    use bitcoin_script::{script,define_pushable};
+    define_pushable!();
+    use bitcoin::ScriptBuf as Script;
     use core::ops::{Add, Mul};
     use p3_baby_bear::BabyBear as P3BabyBear;
     use p3_field::PrimeField32;
     use rand::{Rng, SeedableRng};
     use rand_chacha::ChaCha20Rng;
+
+    use crate::execute_script;
 
     #[test]
     fn test_small_karatsuba() {

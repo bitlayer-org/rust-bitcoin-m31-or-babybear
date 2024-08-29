@@ -1,5 +1,8 @@
-use bitvm::treepp::*;
+// use bitvm::treepp::*;
 
+use bitcoin_script::{script,define_pushable};
+define_pushable!();
+use bitcoin::ScriptBuf as Script;
 mod m31;
 pub use m31::*;
 
@@ -81,6 +84,15 @@ pub fn v31_double<M: U31Config>() -> Script {
     }
 }
 
+/**
+ * input
+ *  stack:
+ *    a
+ *    b
+ * output:
+ *  stack:
+ *    b - a
+ */
 pub fn u31_sub<M: U31Config>() -> Script {
     script! {
         OP_SUB
@@ -168,7 +180,7 @@ pub fn u31_mul<M: U31Config>() -> Script {
     }
 }
 
-pub fn u31_mul_by_constant<M :U31Config>(constant: u32) -> Script {
+pub fn u31_mul_by_constant<M: U31Config>(constant: u32) -> Script {
     let mut naf = ark_ff::biginteger::arithmetic::find_naf(&[constant as u64]);
 
     if naf.len() > 3 {
@@ -198,7 +210,8 @@ pub fn u31_mul_by_constant<M :U31Config>(constant: u32) -> Script {
             script_bytes.extend_from_slice(
                 script! {
                     OP_DUP { u31_neg::<M>() } OP_SWAP
-                }.as_bytes(),
+                }
+                .as_bytes(),
             );
             script_bytes.extend_from_slice(double.as_bytes());
             cur += 1;
@@ -209,7 +222,8 @@ pub fn u31_mul_by_constant<M :U31Config>(constant: u32) -> Script {
         script_bytes.extend_from_slice(
             script! {
                 OP_DROP { 0 }
-            }.as_bytes(),
+            }
+            .as_bytes(),
         );
 
         return Script::from(script_bytes);
@@ -220,16 +234,22 @@ pub fn u31_mul_by_constant<M :U31Config>(constant: u32) -> Script {
             if naf[cur] == 0 {
                 script_bytes.extend_from_slice(double.as_bytes());
             } else if naf[cur] == 1 {
-                script_bytes.extend_from_slice(script! {
-                    OP_SWAP OP_OVER { u31_add::<M>() } OP_SWAP
-                }.as_bytes());
+                script_bytes.extend_from_slice(
+                    script! {
+                        OP_SWAP OP_OVER { u31_add::<M>() } OP_SWAP
+                    }
+                    .as_bytes(),
+                );
                 if cur != naf.len() - 1 {
                     script_bytes.extend_from_slice(double.as_bytes());
                 }
             } else if naf[cur] == -1 {
-                script_bytes.extend_from_slice(script! {
-                    OP_SWAP OP_OVER { u31_sub::<M>() } OP_SWAP
-                }.as_bytes());
+                script_bytes.extend_from_slice(
+                    script! {
+                        OP_SWAP OP_OVER { u31_sub::<M>() } OP_SWAP
+                    }
+                    .as_bytes(),
+                );
                 if cur != naf.len() - 1 {
                     script_bytes.extend_from_slice(double.as_bytes());
                 }
@@ -244,7 +264,10 @@ pub fn u31_mul_by_constant<M :U31Config>(constant: u32) -> Script {
 
 #[cfg(test)]
 mod test {
-    use bitvm::treepp::*;
+    use bitcoin_script::{script,define_pushable};
+    define_pushable!();
+    use bitcoin::ScriptBuf as Script;
+    use crate::execute_script;
     use rand::{Rng, SeedableRng};
     use rand_chacha::ChaCha20Rng;
 

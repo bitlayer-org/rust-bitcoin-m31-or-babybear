@@ -1,9 +1,9 @@
 use crate::{
     u31_add_v31, u31_mul_by_constant, u31_neg, u31_to_bits, u31_to_v31, unroll, v31_add, v31_double,
 };
-use bitcoin::opcodes::{OP_FROMALTSTACK, OP_SWAP, OP_TOALTSTACK};
-use bitvm::treepp::*;
-
+use bitcoin_script::{script,define_pushable};
+define_pushable!();
+use bitcoin::ScriptBuf as Script;
 mod babybear;
 pub use babybear::*;
 
